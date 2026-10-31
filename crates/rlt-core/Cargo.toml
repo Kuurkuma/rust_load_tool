@@ -1,0 +1,31 @@
+[package]
+name = "rlt-core"
+version = "0.1.0"
+edition = "2021"
+description = "Core engine for rlt: dynamic schema drift, Arrow buffering, Parquet encoding"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+arrow = { workspace = true }
+arrow-json = { workspace = true }
+parquet = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+object_store = { workspace = true }
+thiserror = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+bytes = { workspace = true }
+tracing = { workspace = true }
+indexmap = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full", "test-util"] }
+tempfile = "3"
+walkdir = "2"
+
+[[test]]
+name = "e2e_drift_test"
+path = "../../tests/e2e_drift_test.rs"
+

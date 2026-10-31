@@ -1,0 +1,22 @@
+[package]
+name = "rlt-cli"
+version = "0.1.0"
+edition = "2021"
+description = "CLI and HTTP server for rlt streaming ingestion"
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "rlt"
+path = "src/main.rs"
+
+[dependencies]
+rlt-core = { path = "../rlt-core" }
+tokio = { workspace = true }
+clap = { workspace = true }
+axum = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
