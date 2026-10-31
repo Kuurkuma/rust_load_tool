@@ -48,6 +48,12 @@ variable "concurrency" {
   default     = 80
 }
 
+variable "artifact_repository_id" {
+  description = "Name of the Artifact Registry repository."
+  type        = string
+  default     = "rlt-docker-repo"
+}
+
 variable "gcp_services" {
   description = "List of GCP APIs to enable for benchmark deployment."
   type        = list(string)
@@ -57,5 +63,6 @@ variable "gcp_services" {
     "iam.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "artifactregistry.googleapis.com",
+    "cloudbuild.googleapis.com",
   ]
 }

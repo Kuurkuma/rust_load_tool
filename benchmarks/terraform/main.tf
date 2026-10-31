@@ -25,7 +25,19 @@ resource "google_project_service" "gcp_services" {
 }
 
 # ------------------------------------------------------------------------------
-# 1. GCS Bucket for Parquet Outputs
+# 1. Artifact Registry Docker Repository
+# ------------------------------------------------------------------------------
+resource "google_artifact_registry_repository" "docker_repo" {
+  repository_id = var.artifact_repository_id
+  location      = var.region
+  format        = "DOCKER"
+  description   = "Docker repository for ingestion benchmark competitors"
+
+  depends_on = [google_project_service.gcp_services]
+}
+
+# ------------------------------------------------------------------------------
+# 2. GCS Bucket for Parquet Outputs
 # ------------------------------------------------------------------------------
 resource "google_storage_bucket" "benchmark_bucket" {
   name                        = "${var.project_id}-rlt-bench-${var.benchmark_id}"
@@ -62,14 +74,17 @@ resource "google_storage_bucket_iam_member" "bench_storage_admin" {
 }
 
 # ------------------------------------------------------------------------------
-# 3. Cloud Run Service: rlt (Rust)
+# 4. Cloud Run Service: rlt (Rust)
 # ------------------------------------------------------------------------------
 resource "google_cloud_run_v2_service" "rlt" {
   name     = "rlt-bench-rlt-${var.benchmark_id}"
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
-  depends_on = [google_project_service.gcp_services]
+  depends_on = [
+    google_project_service.gcp_services,
+    google_artifact_registry_repository.docker_repo,
+  ]
 
   template {
     execution_environment            = "EXECUTION_ENVIRONMENT_GEN2"
@@ -129,14 +144,17 @@ resource "google_cloud_run_v2_service_iam_member" "rlt_public" {
 }
 
 # ------------------------------------------------------------------------------
-# 4. Cloud Run Service: ingestr (Go)
+# 5. Cloud Run Service: ingestr (Go)
 # ------------------------------------------------------------------------------
 resource "google_cloud_run_v2_service" "ingestr" {
   name     = "rlt-bench-ingestr-${var.benchmark_id}"
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
-  depends_on = [google_project_service.gcp_services]
+  depends_on = [
+    google_project_service.gcp_services,
+    google_artifact_registry_repository.docker_repo,
+  ]
 
   template {
     execution_environment            = "EXECUTION_ENVIRONMENT_GEN2"
@@ -184,14 +202,17 @@ resource "google_cloud_run_v2_service_iam_member" "ingestr_public" {
 }
 
 # ------------------------------------------------------------------------------
-# 5. Cloud Run Service: dlt (Python)
+# 6. Cloud Run Service: dlt (Python)
 # ------------------------------------------------------------------------------
 resource "google_cloud_run_v2_service" "dlt" {
   name     = "rlt-bench-dlt-${var.benchmark_id}"
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
-  depends_on = [google_project_service.gcp_services]
+  depends_on = [
+    google_project_service.gcp_services,
+    google_artifact_registry_repository.docker_repo,
+  ]
 
   template {
     execution_environment            = "EXECUTION_ENVIRONMENT_GEN2"

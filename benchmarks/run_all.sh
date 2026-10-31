@@ -15,7 +15,8 @@ SCRIPTS_DIR="${SCRIPT_DIR}/scripts"
 PROJECT_ID="${GCP_PROJECT_ID:-$(gcloud config get-value project 2>/dev/null || echo "")}"
 REGION="${GCP_REGION:-europe-west1}"
 BENCHMARK_ID="${BENCHMARK_ID:-v1}"
-REPO_NAME="rlt-benchmarks"
+REPO_NAME="rlt-docker-repo"
+TAG="latest"
 TOTAL_REQUESTS=1000
 CONCURRENCY=20
 BATCH_SIZE=1
@@ -134,9 +135,9 @@ if ! python3 -c "import aiohttp" &>/dev/null; then
 fi
 
 IMAGE_BASE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}"
-RLT_IMAGE="${IMAGE_BASE}/rlt-rust:${BENCHMARK_ID}"
-INGESTR_IMAGE="${IMAGE_BASE}/ingestr-go:${BENCHMARK_ID}"
-DLT_IMAGE="${IMAGE_BASE}/dlt-python:${BENCHMARK_ID}"
+RLT_IMAGE="${IMAGE_BASE}/rlt-rust:${TAG}"
+INGESTR_IMAGE="${IMAGE_BASE}/ingestr-go:${TAG}"
+DLT_IMAGE="${IMAGE_BASE}/dlt-python:${TAG}"
 
 # ------------------------------------------------------------------------------
 # Handle --destroy Action
@@ -159,40 +160,12 @@ fi
 # 2. Build and Push Container Images
 # ------------------------------------------------------------------------------
 if [[ "${SKIP_BUILD}" == false ]]; then
-    log_info "Ensuring required GCP services are enabled..."
-    gcloud services enable \
-        run.googleapis.com \
-        storage.googleapis.com \
-        iam.googleapis.com \
-        cloudresourcemanager.googleapis.com \
-        artifactregistry.googleapis.com \
-        --project="${PROJECT_ID}" --quiet || true
-
-    log_info "Configuring Artifact Registry repository '${REPO_NAME}'..."
-    gcloud artifacts repositories describe "${REPO_NAME}" \
-        --location="${REGION}" \
-        --project="${PROJECT_ID}" &>/dev/null || \
-    gcloud artifacts repositories create "${REPO_NAME}" \
-        --repository-format=docker \
-        --location="${REGION}" \
-        --project="${PROJECT_ID}" \
-        --description="Docker repository for ingestion benchmark competitors"
-
-    gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
-
-    log_info "Building and pushing [1/3] rlt (Rust)..."
-    docker build -t "${RLT_IMAGE}" -f "${REPO_ROOT}/Dockerfile" "${REPO_ROOT}"
-    docker push "${RLT_IMAGE}"
-
-    log_info "Building and pushing [2/3] ingestr (Go)..."
-    docker build -t "${INGESTR_IMAGE}" -f "${SCRIPT_DIR}/competitors/ingestr-go/Dockerfile" "${SCRIPT_DIR}/competitors/ingestr-go"
-    docker push "${INGESTR_IMAGE}"
-
-    log_info "Building and pushing [3/3] dlt (Python)..."
-    docker build -t "${DLT_IMAGE}" -f "${SCRIPT_DIR}/competitors/dlt-python/Dockerfile" "${SCRIPT_DIR}/competitors/dlt-python"
-    docker push "${DLT_IMAGE}"
-
-    log_success "All container images successfully pushed to Artifact Registry."
+    log_info "Building and pushing container images to Artifact Registry..."
+    "${SCRIPT_DIR}/build_images.sh" \
+        --project "${PROJECT_ID}" \
+        --region "${REGION}" \
+        --repo "${REPO_NAME}" \
+        --tag "${TAG}"
 else
     log_info "Skipping container image build (--skip-build specified)."
 fi
