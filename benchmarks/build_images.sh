@@ -94,11 +94,15 @@ if [[ "${USE_CLOUD_BUILD}" == "auto" ]]; then
     fi
 fi
 
+BENCHMARK_ID="${BENCHMARK_ID:-v1}"
+SA_EMAIL="${BENCH_SA:-rlt-bench-sa-${BENCHMARK_ID}@${PROJECT_ID}.iam.gserviceaccount.com}"
+
 if [[ "${USE_CLOUD_BUILD}" == "true" ]]; then
-    echo -e "${BLUE}[INFO]${NC} === Building with Google Cloud Build (No local Docker required) ==="
+    echo -e "${BLUE}[INFO]${NC} === Building with Google Cloud Build using Service Account: ${BOLD}${SA_EMAIL}${NC} ==="
 
     echo -e "${BLUE}[INFO]${NC} [1/3] Building rlt (Rust)..."
     gcloud builds submit "${REPO_ROOT}" \
+        --service-account="projects/${PROJECT_ID}/serviceAccounts/${SA_EMAIL}" \
         --config=<(cat <<EOF
 steps:
 - name: 'gcr.io/cloud-builders/docker'
@@ -111,11 +115,13 @@ EOF
 
     echo -e "${BLUE}[INFO]${NC} [2/3] Building ingestr (Go)..."
     gcloud builds submit "${SCRIPT_DIR}/competitors/ingestr-go" \
+        --service-account="projects/${PROJECT_ID}/serviceAccounts/${SA_EMAIL}" \
         --tag="${INGESTR_IMAGE}" \
         --project="${PROJECT_ID}"
 
     echo -e "${BLUE}[INFO]${NC} [3/3] Building dlt (Python)..."
     gcloud builds submit "${SCRIPT_DIR}/competitors/dlt-python" \
+        --service-account="projects/${PROJECT_ID}/serviceAccounts/${SA_EMAIL}" \
         --tag="${DLT_IMAGE}" \
         --project="${PROJECT_ID}"
 else

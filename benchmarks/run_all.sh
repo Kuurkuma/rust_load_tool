@@ -178,7 +178,7 @@ fi
 # ------------------------------------------------------------------------------
 if [[ "${SKIP_BUILD}" == false ]]; then
     log_info "Building and pushing container images to Artifact Registry..."
-    "${SCRIPT_DIR}/build_images.sh" \
+    BENCHMARK_ID="${BENCHMARK_ID}" "${SCRIPT_DIR}/build_images.sh" \
         --project "${PROJECT_ID}" \
         --region "${REGION}" \
         --repo "${REPO_NAME}" \
