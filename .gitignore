@@ -3,9 +3,17 @@
 *.parquet
 .DS_Store
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+
 # Terraform
 .terraform/
 *.tfstate
 *.tfstate.*
 .terraform.tfstate.lock.info
+
 
