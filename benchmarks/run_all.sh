@@ -118,21 +118,38 @@ if [[ -z "${PROJECT_ID}" ]]; then
 fi
 
 # ------------------------------------------------------------------------------
-# 1. Check Prerequisites
+# 1. Check Prerequisites & Setup Python Virtual Environment
 # ------------------------------------------------------------------------------
 log_info "Verifying prerequisites..."
-for cmd in gcloud terraform docker python3; do
+for cmd in gcloud terraform python3; do
     if ! command -v "${cmd}" &>/dev/null; then
         log_error "Required CLI tool '${cmd}' is not installed or not in PATH."
         exit 1
     fi
 done
 
-# Check Python dependencies
-if ! python3 -c "import aiohttp" &>/dev/null; then
-    log_warn "'aiohttp' not detected in current Python environment. Installing dependencies..."
-    pip3 install -q -r "${SCRIPTS_DIR}/requirements.txt"
+# Setup isolated Python virtual environment with uv or python venv
+VENV_DIR="${SCRIPT_DIR}/.venv"
+if [[ ! -d "${VENV_DIR}" ]]; then
+    log_info "Setting up Python virtual environment in ${VENV_DIR}..."
+    if command -v uv &>/dev/null; then
+        uv venv "${VENV_DIR}" --quiet
+        uv pip install --python "${VENV_DIR}/bin/python" -q -r "${SCRIPTS_DIR}/requirements.txt"
+    else
+        python3 -m venv "${VENV_DIR}"
+        "${VENV_DIR}/bin/pip" install -q -r "${SCRIPTS_DIR}/requirements.txt"
+    fi
+    log_success "Benchmark Python virtual environment ready."
+elif ! "${VENV_DIR}/bin/python" -c "import aiohttp" &>/dev/null; then
+    log_info "Installing missing benchmark dependencies into ${VENV_DIR}..."
+    if command -v uv &>/dev/null; then
+        uv pip install --python "${VENV_DIR}/bin/python" -q -r "${SCRIPTS_DIR}/requirements.txt"
+    else
+        "${VENV_DIR}/bin/pip" install -q -r "${SCRIPTS_DIR}/requirements.txt"
+    fi
 fi
+
+PYTHON_EXEC="${VENV_DIR}/bin/python"
 
 IMAGE_BASE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}"
 RLT_IMAGE="${IMAGE_BASE}/rlt-rust:${TAG}"
@@ -208,7 +225,7 @@ sleep 15
 # 4. Execute Benchmark Suite
 # ------------------------------------------------------------------------------
 log_info "Executing benchmark orchestrator..."
-python3 "${SCRIPTS_DIR}/orchestrator.py" \
+"${PYTHON_EXEC}" "${SCRIPTS_DIR}/orchestrator.py" \
     --rlt-url="${RLT_URL}" \
     --ingestr-url="${INGESTR_URL}" \
     --dlt-url="${DLT_URL}" \
