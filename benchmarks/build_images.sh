@@ -102,28 +102,51 @@ if [[ "${USE_CLOUD_BUILD}" == "true" ]]; then
 
     echo -e "${BLUE}[INFO]${NC} [1/3] Building rlt (Rust)..."
     gcloud builds submit "${REPO_ROOT}" \
+        --project="${PROJECT_ID}" \
         --service-account="projects/${PROJECT_ID}/serviceAccounts/${SA_EMAIL}" \
+        --default-buckets-behavior=regional-user-owned-bucket \
         --config=<(cat <<EOF
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', '${RLT_IMAGE}', '-f', 'Dockerfile', '.']
 images:
 - '${RLT_IMAGE}'
+options:
+  logging: CLOUD_LOGGING_ONLY
 EOF
-) \
-        --project="${PROJECT_ID}"
+)
 
     echo -e "${BLUE}[INFO]${NC} [2/3] Building ingestr (Go)..."
     gcloud builds submit "${SCRIPT_DIR}/competitors/ingestr-go" \
+        --project="${PROJECT_ID}" \
         --service-account="projects/${PROJECT_ID}/serviceAccounts/${SA_EMAIL}" \
-        --tag="${INGESTR_IMAGE}" \
-        --project="${PROJECT_ID}"
+        --default-buckets-behavior=regional-user-owned-bucket \
+        --config=<(cat <<EOF
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', '${INGESTR_IMAGE}', '.']
+images:
+- '${INGESTR_IMAGE}'
+options:
+  logging: CLOUD_LOGGING_ONLY
+EOF
+)
 
     echo -e "${BLUE}[INFO]${NC} [3/3] Building dlt (Python)..."
     gcloud builds submit "${SCRIPT_DIR}/competitors/dlt-python" \
+        --project="${PROJECT_ID}" \
         --service-account="projects/${PROJECT_ID}/serviceAccounts/${SA_EMAIL}" \
-        --tag="${DLT_IMAGE}" \
-        --project="${PROJECT_ID}"
+        --default-buckets-behavior=regional-user-owned-bucket \
+        --config=<(cat <<EOF
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', '${DLT_IMAGE}', '.']
+images:
+- '${DLT_IMAGE}'
+options:
+  logging: CLOUD_LOGGING_ONLY
+EOF
+)
 else
     echo -e "${BLUE}[INFO]${NC} === Building with Local Docker (platform linux/amd64) ==="
     gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
