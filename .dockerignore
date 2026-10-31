@@ -3,4 +3,5 @@ target/
 .gitignore
 *.md
 docs/
-tests/
+benchmarks/.venv/
+benchmarks/results/

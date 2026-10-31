@@ -16,20 +16,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy dependency manifests first for build layer caching
+# Copy manifests and source code
 COPY Cargo.toml Cargo.lock ./
-COPY crates/rlt-core/Cargo.toml ./crates/rlt-core/Cargo.toml
-COPY crates/rlt-cli/Cargo.toml ./crates/rlt-cli/Cargo.toml
-
-# Create dummy source files to cache dependency compilation
-RUN mkdir -p crates/rlt-core/src crates/rlt-cli/src \
-    && echo "pub fn dummy() {}" > crates/rlt-core/src/lib.rs \
-    && echo "fn main() {}" > crates/rlt-cli/src/main.rs \
-    && cargo build --release --bin rlt \
-    && rm -rf crates/rlt-core/src crates/rlt-cli/src target/release/deps/rlt* target/release/deps/librlt_core*
-
-# Copy the real source code
 COPY crates ./crates
+COPY tests ./tests
 
 # Compile the final release binary with full optimizations (LTO, strip)
 RUN cargo build --release --bin rlt
@@ -39,15 +29,15 @@ FROM gcr.io/distroless/cc-debian12:nonroot AS runtime
 
 WORKDIR /app
 
-# Copy the statically/dynamically resolved binary from builder
+# Copy the binary from builder
 COPY --from=builder --chown=nonroot:nonroot /app/target/release/rlt /usr/local/bin/rlt
 
 # Expose default Cloud Run ingestion port
 EXPOSE 8080
 
 # Environment variables for Cloud Run runtime
-ENV RUST_LOG=info
-ENV PORT=8080
+ENV RUST_LOG=info \
+    PORT=8080
 
 # Run as non-root user (id 65532 in distroless)
 USER nonroot:nonroot

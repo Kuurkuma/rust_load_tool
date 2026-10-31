@@ -13,16 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY Cargo.toml Cargo.lock ./
-COPY crates/rlt-core/Cargo.toml ./crates/rlt-core/Cargo.toml
-COPY crates/rlt-cli/Cargo.toml ./crates/rlt-cli/Cargo.toml
-
-RUN mkdir -p crates/rlt-core/src crates/rlt-cli/src \
-    && echo "pub fn dummy() {}" > crates/rlt-core/src/lib.rs \
-    && echo "fn main() {}" > crates/rlt-cli/src/main.rs \
-    && cargo build --release --bin rlt \
-    && rm -rf crates/rlt-core/src crates/rlt-cli/src target/release/deps/rlt* target/release/deps/librlt_core*
-
 COPY crates ./crates
+COPY tests ./tests
 
 RUN cargo build --release --bin rlt
 
