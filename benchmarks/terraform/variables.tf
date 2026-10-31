@@ -47,3 +47,15 @@ variable "concurrency" {
   type        = number
   default     = 80
 }
+
+variable "gcp_services" {
+  description = "List of GCP APIs to enable for benchmark deployment."
+  type        = list(string)
+  default = [
+    "run.googleapis.com",
+    "storage.googleapis.com",
+    "iam.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "artifactregistry.googleapis.com",
+  ]
+}

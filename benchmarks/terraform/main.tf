@@ -14,6 +14,17 @@ provider "google" {
 }
 
 # ------------------------------------------------------------------------------
+# 0. Enable Required GCP APIs
+# ------------------------------------------------------------------------------
+resource "google_project_service" "gcp_services" {
+  for_each = toset(var.gcp_services)
+
+  project            = var.project_id
+  service            = each.key
+  disable_on_destroy = false
+}
+
+# ------------------------------------------------------------------------------
 # 1. GCS Bucket for Parquet Outputs
 # ------------------------------------------------------------------------------
 resource "google_storage_bucket" "benchmark_bucket" {
@@ -30,6 +41,8 @@ resource "google_storage_bucket" "benchmark_bucket" {
       type = "Delete"
     }
   }
+
+  depends_on = [google_project_service.gcp_services]
 }
 
 # ------------------------------------------------------------------------------
@@ -38,6 +51,8 @@ resource "google_storage_bucket" "benchmark_bucket" {
 resource "google_service_account" "bench_sa" {
   account_id   = "rlt-bench-sa-${var.benchmark_id}"
   display_name = "Cloud Run Benchmark Ingestion SA"
+
+  depends_on = [google_project_service.gcp_services]
 }
 
 resource "google_storage_bucket_iam_member" "bench_storage_admin" {
@@ -53,6 +68,8 @@ resource "google_cloud_run_v2_service" "rlt" {
   name     = "rlt-bench-rlt-${var.benchmark_id}"
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
+
+  depends_on = [google_project_service.gcp_services]
 
   template {
     execution_environment            = "EXECUTION_ENVIRONMENT_GEN2"
@@ -119,6 +136,8 @@ resource "google_cloud_run_v2_service" "ingestr" {
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
 
+  depends_on = [google_project_service.gcp_services]
+
   template {
     execution_environment            = "EXECUTION_ENVIRONMENT_GEN2"
     service_account                  = google_service_account.bench_sa.email
@@ -171,6 +190,8 @@ resource "google_cloud_run_v2_service" "dlt" {
   name     = "rlt-bench-dlt-${var.benchmark_id}"
   location = var.region
   ingress  = "INGRESS_TRAFFIC_ALL"
+
+  depends_on = [google_project_service.gcp_services]
 
   template {
     execution_environment            = "EXECUTION_ENVIRONMENT_GEN2"

@@ -159,6 +159,15 @@ fi
 # 2. Build and Push Container Images
 # ------------------------------------------------------------------------------
 if [[ "${SKIP_BUILD}" == false ]]; then
+    log_info "Ensuring required GCP services are enabled..."
+    gcloud services enable \
+        run.googleapis.com \
+        storage.googleapis.com \
+        iam.googleapis.com \
+        cloudresourcemanager.googleapis.com \
+        artifactregistry.googleapis.com \
+        --project="${PROJECT_ID}" --quiet || true
+
     log_info "Configuring Artifact Registry repository '${REPO_NAME}'..."
     gcloud artifacts repositories describe "${REPO_NAME}" \
         --location="${REGION}" \

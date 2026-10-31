@@ -1,27 +1,27 @@
 # ==============================================================================
 # dlt (Python) Ingestion Service Dockerfile
-# Base: python:3.11-slim with Astral's uv package manager
+# Native uv + pyproject.toml workflow
 # ==============================================================================
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install uv directly from Astral's official image
+# Install Astral's uv binary directly
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PORT=8080 \
-    UV_SYSTEM_PYTHON=1
+    UV_COMPILE_BYTECODE=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-# Fast, cached dependency installation using uv
-RUN uv pip install --no-cache -r requirements.txt
+# Copy pyproject.toml and install dependencies natively with uv
+COPY pyproject.toml .
+RUN uv pip install --system --no-cache -r pyproject.toml
 
 COPY main.py .
 
