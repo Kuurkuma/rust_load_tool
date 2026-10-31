@@ -110,7 +110,7 @@ export IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/rlt:latest
 gcloud builds submit --tag ${IMAGE_URI} .
 ```
 
-*The multi-stage `Dockerfile` uses `rust:1.85-slim-bookworm` to build an optimized release binary (with LTO and symbol stripping), then packages it onto `gcr.io/distroless/cc-debian12:nonroot` for a total image size of only ~35 MB.*
+*The multi-stage `Dockerfile` uses `rust:slim-bookworm` to build an optimized release binary (with LTO and symbol stripping), then packages it onto `gcr.io/distroless/cc-debian12:nonroot` for a total image size of only ~35 MB.*
 
 ---
 
