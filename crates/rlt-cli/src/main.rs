@@ -103,24 +103,24 @@ enum Commands {
 
     /// Start an HTTP server that accepts POST /ingest with JSON payloads.
     Serve {
-        /// Port to listen on.
-        #[arg(long, default_value = "8080")]
+        /// Port to listen on (automatically binds to $PORT on Cloud Run).
+        #[arg(long, env = "PORT", default_value = "8080")]
         port: u16,
 
         /// Destination: local path or gs://bucket/prefix.
-        #[arg(long)]
+        #[arg(long, env = "DESTINATION")]
         destination: String,
 
         /// Batch size in megabytes before flushing.
-        #[arg(long, default_value = "32")]
+        #[arg(long, env = "BATCH_SIZE_MB", default_value = "32")]
         batch_size_mb: usize,
 
         /// Flush interval in seconds (time-based trigger).
-        #[arg(long, default_value = "30")]
+        #[arg(long, env = "FLUSH_INTERVAL_SECS", default_value = "30")]
         flush_interval_secs: u64,
 
         /// Compression algorithm.
-        #[arg(long, default_value = "zstd")]
+        #[arg(long, env = "COMPRESSION", default_value = "zstd")]
         compression: CompressionArg,
     },
 }

@@ -28,7 +28,7 @@ serde_json = "1"
 object_store = { version = "0.12", features = ["gcp"] }
 
 # CLI & HTTP
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4", features = ["derive", "env"] }
 axum = "0.8"
 
 # Error handling

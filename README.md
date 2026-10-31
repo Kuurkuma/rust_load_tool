@@ -166,6 +166,45 @@ curl http://localhost:8080/health
 
 ---
 
+## ☁️ Google Cloud & Cloud Run Deployment
+
+`rlt` is designed specifically for containerized, serverless ingestion on **Google Cloud Run** writing to **Google Cloud Storage (GCS)** and queried by **BigQuery**.
+
+### Quick Deployment Steps:
+
+1. **Build container with Cloud Build** (using multi-stage [`Dockerfile`](Dockerfile)):
+   ```bash
+   gcloud builds submit --tag europe-west9-docker.pkg.dev/$PROJECT_ID/rlt-repo/rlt:latest .
+   ```
+
+2. **Deploy to Cloud Run with scale-to-zero**:
+   ```bash
+   gcloud run deploy rlt-ingest-service \
+     --image=europe-west9-docker.pkg.dev/$PROJECT_ID/rlt-repo/rlt:latest \
+     --region=europe-west9 \
+     --memory=512Mi \
+     --cpu=1 \
+     --concurrency=80 \
+     --min-instances=0 \
+     --set-env-vars="DESTINATION=gs://$MY_BUCKET/events,BATCH_SIZE_MB=32,FLUSH_INTERVAL_SECS=30" \
+     --allow-unauthenticated
+   ```
+
+3. **Query via BigQuery External Table**:
+   ```sql
+   CREATE OR REPLACE EXTERNAL TABLE `analytics.rlt_events`
+   WITH PARTITION COLUMNS (year INT64, month INT64, day INT64)
+   OPTIONS (
+       format = 'PARQUET',
+       uris = ['gs://my-bucket/events/*'],
+       hive_partition_uri_prefix = 'gs://my-bucket/events/'
+   );
+   ```
+
+📖 **For step-by-step IAM permissions, lifecycle rules, and architecture details, read the complete guide: [docs/DEPLOYMENT_GCP.md](docs/DEPLOYMENT_GCP.md).**
+
+---
+
 ## 🧪 Verification & Testing
 
 ```bash
