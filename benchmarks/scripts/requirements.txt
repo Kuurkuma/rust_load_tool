@@ -1,0 +1,4 @@
+aiohttp>=3.9.0
+requests>=2.31.0
+google-cloud-monitoring>=2.19.0
+rich>=13.7.0

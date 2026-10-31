@@ -1,0 +1,18 @@
+github.com/andybalholm/brotli v1.1.0 h1:eLKVAaLxTR50vNOElwF44qZecZ27HxLgQliaRTCQFiA=
+github.com/andybalholm/brotli v1.1.0/go.mod h1:sms7XGvNU8v9qLGiPO44hXoiAfl5Y38/9m8fcAbIJVg=
+github.com/google/uuid v1.6.0 h1:NIvaJDKgkn6VUZuLWN3eBQGStF256MgozpAkGhumNe4=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMo3AsKNVWV9nfVUKrrSQjwv4=
+github.com/klauspost/compress v1.17.9 h1:6KIumPrER1LHsvBVuDa0r52XCoZPT9wCqCmDW8hnJZQ=
+github.com/klauspost/compress v1.17.9/go.mod h1:Di01bpDry9O0Y83LgwuT0975Di842N8WbYDaNuNWZ9g=
+github.com/mattn/go-runewidth v0.0.15 h1:UNxDmTiSQbhSTWXuEcDBaIijT23evdhICpDU786sUR8=
+github.com/mattn/go-runewidth v0.0.15/go.mod h1:Jdepj2loyihRzC9bSiGQfvIT39VqhWKAaxe9dyvaCUk=
+github.com/olekukonko/tablewriter v0.0.5 h1:P2Ga83D39haU54JnKyQKHTVqZqwgT09FVPXb02Y5130=
+github.com/olekukonko/tablewriter v0.0.5/go.mod h1:hPp6KlRPjbx+hW8ykQs1w3upZGReKqqLhDLTjehXtNI=
+github.com/parquet-go/parquet-go v0.24.0 h1:6Kz8Z15yUe6R636B5d2D48d8JbFp5k9nO7eI3x1yK8=
+github.com/parquet-go/parquet-go v0.24.0/go.mod h1:3Kz8Z15yUe6R636B5d2D48d8JbFp5k9nO7eI3x1yK8=
+github.com/pierrec/lz4/v4 v4.1.21 h1:yGyc2W8pvbXZLNnNx41AnBsqecbWobcq9ecbZ8P1n2E=
+github.com/pierrec/lz4/v4 v4.1.21/go.mod h1:gZWDp/Ac/nzX423pk9eaYUR97S4XCbt1KVw2JwLQp4M=
+github.com/rivo/uniseg v0.4.7 h1:WUtikUY2MqGEZbggT10xY9mZ14lK443y122Hi0L/nUg=
+github.com/rivo/uniseg v0.4.7/go.mod h1:bD8qSNOk39au/8K9Yy98sO1nZCT/3j9NfZF4wJ/3y/w=
+golang.org/x/sys v0.21.0 h1:rurYTeBrok5FsCQ5gxU8O62G8d7/Z1gH3t6u4cT/tV0=
+golang.org/x/sys v0.21.0/go.mod h1:/VU неприятно/

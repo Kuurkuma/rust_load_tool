@@ -2,3 +2,10 @@
 **/*.rs.bk
 *.parquet
 .DS_Store
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock.info
+
